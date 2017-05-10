@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">OpenWeatherMapExample</string>
+    <string name="action_settings">Settings</string>
+    <string name="kiev">Киев</string>
+    <string name="kharkov">Харьков</string>
+    <string name="dnepr">Днепр</string>
+    <string name="bad_internet">Плохое интернет соединение</string>
+    <string name="unknowb_error">Неизвестная ошибка</string>
+</resources>

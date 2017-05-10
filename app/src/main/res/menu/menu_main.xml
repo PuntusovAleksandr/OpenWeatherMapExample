@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.aleksandrp.openweathermapexample.activity.MainActivity">
+
+    <item
+        android:id="@+id/action_kiev"
+        android:orderInCategory="100"
+        android:title="@string/kiev"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_kharkov"
+        android:orderInCategory="100"
+        android:title="@string/kharkov"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_dnepr"
+        android:orderInCategory="100"
+        android:title="@string/dnepr"
+        app:showAsAction="never"/>
+</menu>
