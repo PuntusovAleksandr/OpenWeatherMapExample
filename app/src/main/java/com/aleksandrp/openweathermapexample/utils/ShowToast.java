@@ -10,7 +10,7 @@ import com.aleksandrp.openweathermapexample.App;
  * Created by AleksandrP on 10.05.2017.
  */
 
-public class ShowToasr {
+public class ShowToast {
 
     private static boolean isShowToast = true;
 

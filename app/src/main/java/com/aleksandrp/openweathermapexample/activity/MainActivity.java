@@ -18,7 +18,7 @@ import com.aleksandrp.openweathermapexample.presenter.MainPresenter;
 import com.aleksandrp.openweathermapexample.rx.events.NetworkRequestEvent;
 import com.aleksandrp.openweathermapexample.rx.models.WeatherModel;
 import com.aleksandrp.openweathermapexample.utils.SettingsApp;
-import com.aleksandrp.openweathermapexample.utils.ShowToasr;
+import com.aleksandrp.openweathermapexample.utils.ShowToast;
 import com.squareup.picasso.Picasso;
 
 import java.util.Timer;
@@ -36,7 +36,9 @@ import static com.aleksandrp.openweathermapexample.utils.StaticParams.KIEV;
 
 public class MainActivity extends AppCompatActivity implements MvpView {
 
-
+    /**
+     * DECLARE VIEWS
+     */
     @Bind(R.id.progressBar_registration)
     RelativeLayout progressBar_registration;
 
@@ -54,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements MvpView {
     @Bind(R.id.iv_icon_weather)
     ImageView iv_icon_weather;
 
+    /**
+     * DECLARE SERVICE
+     */
     private MainPresenter mPresenter;
     private Intent serviceIntent;
 
@@ -61,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements MvpView {
     private TimerTask task;
     private final long TIME_PERIOD = 1000 * 60 * 30;        // period 30 min
 
+    /**
+     * DECLARE PARAMS
+     */
     private String name;
     private String temp;
     private String temp_min;
@@ -92,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements MvpView {
                 });
             }
         };
-        startTimer();
+        timer.schedule(task, 0, TIME_PERIOD);      // period
     }
 
     @Override
@@ -169,11 +177,9 @@ public class MainActivity extends AppCompatActivity implements MvpView {
         return super.onOptionsItemSelected(item);
     }
 
-
-    private void startTimer() {
-        timer.schedule(task, 0, TIME_PERIOD);      // period
-    }
-
+    /**
+     * Get from server
+     */
     private void getWeather() {
         if (checkInternetConnection()) {
             showProgress(true);
@@ -183,6 +189,9 @@ public class MainActivity extends AppCompatActivity implements MvpView {
         }
     }
 
+    /**
+     * Init  presenter
+     */
     private void initPresenter() {
         serviceIntent = new Intent(this, ServiceApi.class);
         mPresenter = new MainPresenter();
@@ -190,12 +199,17 @@ public class MainActivity extends AppCompatActivity implements MvpView {
         mPresenter.init();
     }
 
-
+    /**
+     * Stop timer
+     */
     private void stopTimer() {
         if (timer != null)
             timer.cancel();
     }
 
+    /**
+     * Init tool bar views
+     */
     private void initToolBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -218,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements MvpView {
 
     public void showMessageError(String mMessage) {
         showProgress(false);
-        ShowToasr.showMessageError(mMessage);
+        ShowToast.showMessageError(mMessage);
     }
 
     public void showWeather(WeatherModel mData) {
