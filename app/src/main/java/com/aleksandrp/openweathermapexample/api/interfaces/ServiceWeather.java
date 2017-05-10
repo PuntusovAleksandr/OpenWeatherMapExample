@@ -13,7 +13,6 @@ import rx.Observable;
 
 public interface ServiceWeather {
 
-
     @GET("weather")
     Observable<Response<WeatherModel>> getWeather(
             @Query("q") String name,

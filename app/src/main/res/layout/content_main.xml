@@ -94,6 +94,7 @@
                     <ImageView
                         android:layout_width="@dimen/_8dp"
                         android:layout_height="@dimen/_8dp"
+                        android:layout_marginTop="@dimen/_4dp"
                         android:src="@drawable/ic_circle"/>
 
                 </LinearLayout>
@@ -117,6 +118,7 @@
                     <ImageView
                         android:layout_width="@dimen/_8dp"
                         android:layout_height="@dimen/_8dp"
+                        android:layout_marginTop="@dimen/_4dp"
                         android:src="@drawable/ic_circle"/>
 
                 </LinearLayout>

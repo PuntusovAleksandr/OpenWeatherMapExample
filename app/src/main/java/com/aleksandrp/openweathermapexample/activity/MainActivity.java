@@ -21,11 +21,15 @@ import com.aleksandrp.openweathermapexample.utils.SettingsApp;
 import com.aleksandrp.openweathermapexample.utils.ShowToasr;
 import com.squareup.picasso.Picasso;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 import static com.aleksandrp.openweathermapexample.api.RestAdapter.API_ICON_URL;
 import static com.aleksandrp.openweathermapexample.api.constants.Exatras.SERVICE_JOB_ID_TITLE;
+import static com.aleksandrp.openweathermapexample.utils.InternetUtils.checkInternetConnection;
 import static com.aleksandrp.openweathermapexample.utils.StaticParams.DNEPR;
 import static com.aleksandrp.openweathermapexample.utils.StaticParams.KHARKOV;
 import static com.aleksandrp.openweathermapexample.utils.StaticParams.KIEV;
@@ -53,6 +57,17 @@ public class MainActivity extends AppCompatActivity implements MvpView {
     private MainPresenter mPresenter;
     private Intent serviceIntent;
 
+    private Timer timer;
+    private TimerTask task;
+    private final long TIME_PERIOD = 1000 * 60 * 30;        // period 30 min
+
+    private String name;
+    private String temp;
+    private String temp_min;
+    private String temp_max;
+    private String weatherMain;
+    private String path;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,20 +79,59 @@ public class MainActivity extends AppCompatActivity implements MvpView {
         initToolBar();
 
         mPresenter.registerSubscriber();
+
+        timer = new Timer();
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getWeather();
+                    }
+                });
+            }
+        };
+        startTimer();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mPresenter.getWeather();
+        getWeather();
     }
 
     @Override
-    public void onDetachedFromWindow() {
+    protected void onDestroy() {
+        stopTimer();
         mPresenter.unRegisterSubscriber();
         if (mPresenter != null)
             mPresenter.destroy();
-        super.onDetachedFromWindow();
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("name", tv_city.getText().toString());
+        outState.putString("temp", tv_value.getText().toString());
+        outState.putString("temp_min", tv_min_value.getText().toString());
+        outState.putString("temp_max", tv_max_value.getText().toString());
+        outState.putString("weatherMain", tv_summer.getText().toString());
+        outState.putString("path", tv_city.getText().toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        name = savedInstanceState.getString("name");
+        temp = savedInstanceState.getString("temp");
+        temp_min = savedInstanceState.getString("temp_min");
+        temp_max = savedInstanceState.getString("temp_max");
+        weatherMain = savedInstanceState.getString("weatherMain");
+        path = savedInstanceState.getString("path");
+        setDataUi();
     }
 
     @Override
@@ -98,21 +152,35 @@ public class MainActivity extends AppCompatActivity implements MvpView {
         switch (id) {
             case R.id.action_kiev:
                 SettingsApp.getInstance().setKeyCity(KIEV);
-                mPresenter.getWeather();
+                getWeather();
                 return true;
 
             case R.id.action_kharkov:
                 SettingsApp.getInstance().setKeyCity(KHARKOV);
-                mPresenter.getWeather();
+                getWeather();
                 return true;
 
             case R.id.action_dnepr:
                 SettingsApp.getInstance().setKeyCity(DNEPR);
-                mPresenter.getWeather();
+                getWeather();
                 return true;
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void startTimer() {
+        timer.schedule(task, 0, TIME_PERIOD);      // period
+    }
+
+    private void getWeather() {
+        if (checkInternetConnection()) {
+            showProgress(true);
+            mPresenter.getWeather();
+        } else {
+            showMessageError(getString(R.string.faild_internet));
+        }
     }
 
     private void initPresenter() {
@@ -120,6 +188,12 @@ public class MainActivity extends AppCompatActivity implements MvpView {
         mPresenter = new MainPresenter();
         mPresenter.setMvpView(this);
         mPresenter.init();
+    }
+
+
+    private void stopTimer() {
+        if (timer != null)
+            timer.cancel();
     }
 
     private void initToolBar() {
@@ -148,25 +222,32 @@ public class MainActivity extends AppCompatActivity implements MvpView {
     }
 
     public void showWeather(WeatherModel mData) {
-        String temp = mData.main.temp;
-        String temp_min = mData.main.temp_min;
-        String temp_max = mData.main.temp_max;
+        showProgress(false);
+        this.name = mData.name;
+        this.temp = mData.main.temp;
+        this.temp_min = mData.main.temp_min;
+        this.temp_max = mData.main.temp_max;
+        this.weatherMain = mData.weather.get(0).main;
+        this.path = API_ICON_URL + mData.weather.get(0).icon + ".png";
         if (!temp.startsWith("-")) temp = "+" + temp;
         if (!temp_min.startsWith("-")) temp_min = "+" + temp_min;
         if (!temp_max.startsWith("-")) temp_max = "+" + temp_max;
-        tv_city.setText(mData.name);
+
+        setDataUi();
+    }
+
+    private void setDataUi() {
+        tv_city.setText(name);
         tv_value.setText(temp);
         tv_min_value.setText(temp_min);
         tv_max_value.setText(temp_max);
-        tv_summer.setText(mData.weather.get(0).main);
+        tv_summer.setText(weatherMain);
 
+        if (path.isEmpty()) path = String.valueOf(getResources().getDrawable(R.mipmap.ic_launcher));
         Picasso.with(this)
-                .load(API_ICON_URL + mData.weather.get(0).icon + ".png")
+                .load(path)
                 .fit()
                 .centerInside()
-                .error(R.mipmap.ic_launcher)
-                .placeholder(R.mipmap.ic_launcher)
                 .into(iv_icon_weather);
-
     }
 }

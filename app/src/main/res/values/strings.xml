@@ -6,4 +6,5 @@
     <string name="dnepr">Днепр</string>
     <string name="bad_internet">Плохое интернет соединение</string>
     <string name="unknowb_error">Неизвестная ошибка</string>
+    <string name="faild_internet">Отсутствует интернет соединение</string>
 </resources>
