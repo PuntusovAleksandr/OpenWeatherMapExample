@@ -1,6 +1,10 @@
 package com.aleksandrp.openweathermapexample.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,7 +33,9 @@ import butterknife.ButterKnife;
 
 import static com.aleksandrp.openweathermapexample.api.RestAdapter.API_ICON_URL;
 import static com.aleksandrp.openweathermapexample.api.constants.Exatras.SERVICE_JOB_ID_TITLE;
+import static com.aleksandrp.openweathermapexample.utils.InternetUtils.NETWORK_STATUS_NOT_CONNECTED;
 import static com.aleksandrp.openweathermapexample.utils.InternetUtils.checkInternetConnection;
+import static com.aleksandrp.openweathermapexample.utils.InternetUtils.getConnectivityStatusString;
 import static com.aleksandrp.openweathermapexample.utils.StaticParams.DNEPR;
 import static com.aleksandrp.openweathermapexample.utils.StaticParams.KHARKOV;
 import static com.aleksandrp.openweathermapexample.utils.StaticParams.KIEV;
@@ -41,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements MvpView {
      */
     @Bind(R.id.progressBar_registration)
     RelativeLayout progressBar_registration;
+    @Bind(R.id.rl_main)
+    RelativeLayout rl_main;
 
     @Bind(R.id.tv_city)
     TextView tv_city;
@@ -55,12 +63,19 @@ public class MainActivity extends AppCompatActivity implements MvpView {
 
     @Bind(R.id.iv_icon_weather)
     ImageView iv_icon_weather;
+    @Bind(R.id.iv_cel_1)
+    ImageView iv_cel_1;
+    @Bind(R.id.iv_cel_2)
+    ImageView iv_cel_2;
+    @Bind(R.id.iv_cel_3)
+    ImageView iv_cel_;
 
     /**
      * DECLARE SERVICE
      */
     private MainPresenter mPresenter;
     private Intent serviceIntent;
+
 
     private Timer timer;
     private TimerTask task;
@@ -82,6 +97,10 @@ public class MainActivity extends AppCompatActivity implements MvpView {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        iv_cel_1.setVisibility(View.GONE);
+        iv_cel_2.setVisibility(View.GONE);
+        iv_cel_.setVisibility(View.GONE);
+
         initPresenter();
 
         initToolBar();
@@ -101,6 +120,8 @@ public class MainActivity extends AppCompatActivity implements MvpView {
             }
         };
         timer.schedule(task, 0, TIME_PERIOD);      // period
+
+        registerReceiver(myReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
@@ -115,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements MvpView {
         mPresenter.unRegisterSubscriber();
         if (mPresenter != null)
             mPresenter.destroy();
+        unregisterReceiver(myReceiver);
         super.onDestroy();
     }
 
@@ -182,9 +204,11 @@ public class MainActivity extends AppCompatActivity implements MvpView {
      */
     private void getWeather() {
         if (checkInternetConnection()) {
+            rl_main.setVisibility(View.VISIBLE);
             showProgress(true);
             mPresenter.getWeather();
         } else {
+            rl_main.setVisibility(View.GONE);
             showMessageError(getString(R.string.faild_internet));
         }
     }
@@ -237,6 +261,11 @@ public class MainActivity extends AppCompatActivity implements MvpView {
 
     public void showWeather(WeatherModel mData) {
         showProgress(false);
+
+        iv_cel_1.setVisibility(View.VISIBLE);
+        iv_cel_2.setVisibility(View.VISIBLE);
+        iv_cel_.setVisibility(View.VISIBLE);
+
         this.name = mData.name;
         this.temp = mData.main.temp;
         this.temp_min = mData.main.temp_min;
@@ -264,4 +293,25 @@ public class MainActivity extends AppCompatActivity implements MvpView {
                 .centerInside()
                 .into(iv_icon_weather);
     }
+
+
+    //    ================================
+
+    private BroadcastReceiver myReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int status = getConnectivityStatusString(context);
+            if ("android.net.conn.CONNECTIVITY_CHANGE".equals(intent.getAction())) {
+                if (status == NETWORK_STATUS_NOT_CONNECTED) {
+                    rl_main.setVisibility(View.GONE);
+                    showMessageError(getString(R.string.faild_internet));
+                } else {
+                    getWeather();
+                    rl_main.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+    };
+
+    //    ================================
 }
