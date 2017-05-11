@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_8dp"
             android:layout_marginTop="@dimen/_8dp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/text_color"
             android:textSize="@dimen/_22sp"
             android:textStyle="italic|bold"
             tools:text="Hello World!" />
@@ -67,7 +67,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/_8dp"
                         android:layout_marginTop="@dimen/_8dp"
-                        android:textColor="@android:color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/_45sp"
                         android:textStyle="bold"
                         tools:text="+45" />
@@ -99,7 +99,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/_8dp"
                             android:layout_marginTop="@dimen/_8dp"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/text_color"
                             android:textSize="@dimen/_22sp"
                             tools:text="+45" />
 
@@ -124,7 +124,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/_8dp"
                             android:layout_marginTop="@dimen/_8dp"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/text_color"
                             android:textSize="@dimen/_22sp"
                             tools:text="+45" />
 
@@ -144,7 +144,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/_8dp"
                     android:layout_marginTop="@dimen/_8dp"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/text_color"
                     android:textSize="@dimen/_22sp"
                     android:textStyle="bold"
                     tools:text="Summer" />
